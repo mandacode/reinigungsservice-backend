@@ -10,8 +10,7 @@ from api.dependencies import (
     get_invoice_service
 )
 
-# TODO learn how to log in, set up logging configuration for various environments
-# when dev or debug=True, log more modules(api, services, repositories, or others), otherwise log less (api, services)
+
 router = APIRouter(prefix="/api")
 
 
@@ -38,8 +37,11 @@ async def create_invoices_controller(
         dto: InvoicesCreateDTO,
         service = Depends(get_invoice_service)
 ):
-    return await service.generate_invoices(
-        start_date=dto.start_date,
-        end_date=dto.end_date,
-        last_invoice_number=dto.last_invoice_number
+    asyncio.create_task(
+        service.generate_invoices(
+            start_date=dto.start_date,
+            end_date=dto.end_date,
+            last_invoice_number=dto.last_invoice_number
+        )
     )
+    return {"message": "Invoice generation started in the background."}

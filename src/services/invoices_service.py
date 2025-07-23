@@ -32,21 +32,20 @@ class CustomerInvoiceService:
             end_date: datetime.date,
             last_invoice_number: str = '1'
     ):
-        employer = await self._employee_repo.get_by_code(code='MJ')
         path = f"customers/{start_date.year}/{start_date.month:02d}"
         s = time.perf_counter()
         tasks = [
             self._drive.create_folder_structure(path),
-            self._drive.download(file_id=TEMPLATE_FILE_ID)
+            self._drive.download(file_id=TEMPLATE_FILE_ID),
+            self._employee_repo.get_by_code(code='MJ'),
+            self._customer_repo.get_all_with_addresses()
         ]
-        folder_id, template = await asyncio.gather(*tasks)
+        folder_id, template, employer, customers = await asyncio.gather(*tasks)
         e = time.perf_counter()
         print(f"Folder created and template downloaded in {e - s:.2f} seconds")
-        customers = await self._customer_repo.get_all_with_addresses()
 
         customers_by_id = {customer.id: customer for customer in customers}
 
-        # get works in the given period
         works = await self._work_repo.get_by_period(
             start_date=start_date,
             end_date=end_date
@@ -56,10 +55,8 @@ class CustomerInvoiceService:
         for work in works:
             customer_works[work.customer_id].append(work)
 
-
-        invoice_number = last_invoice_number
-
-        for customer_id, works in customer_works.items():
+        to_upload = []
+        for invoice_number, (customer_id, works) in enumerate(customer_works.items(), start=int(last_invoice_number)):
 
             customer = customers_by_id.get(customer_id)
             total = sum(work.total_price for work in works)
@@ -106,19 +103,26 @@ class CustomerInvoiceService:
             content = generate_invoice(template=template, data=data)
 
             filename = self._create_filename(customer.name)
+            to_upload.append((content, filename))
 
-            file_id = await self._drive.upload(
-                content=content,
-                filename=filename,
-                parent_folder_id=folder_id
-            )
+        await asyncio.gather(
+            *[self.upload_invoice(content, filename, folder_id) for content, filename in to_upload]
+        )
 
-            await self._drive.convert_docx_to_pdf(
-                file_id=file_id,
-                filename=filename,
-                folder_id=folder_id
-            )
+    async def upload_invoice(self, content: bytes, filename: str, folder_id: str):
+        file_id = await self._drive.upload(
+            content=content,
+            filename=filename,
+            parent_folder_id=folder_id
+        )
+        print(f"Invoice {filename} uploaded with ID: {file_id}")
 
+        await self._drive.convert_docx_to_pdf(
+            file_id=file_id,
+            filename=filename,
+            folder_id=folder_id
+        )
+        print(f"Invoice {filename} converted to PDF and saved.")
 
     @staticmethod
     def _create_filename(name: str) -> str:
@@ -129,7 +133,6 @@ class CustomerInvoiceService:
             .replace("-", "_")
         )
         return f'{customer_name}.docx'
-
 
 
 # TODO 5. Save copy to S3
