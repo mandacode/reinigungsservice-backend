@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     env_file:
-      - .env.dev
+      - .env
     depends_on:
       - postgres
     volumes:

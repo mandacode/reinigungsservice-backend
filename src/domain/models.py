@@ -14,8 +14,8 @@ class Address(BaseModel):
     postal_code: str
     city: str
 
-    employees: list = field(default_factory=list)
-    customers: list = field(default_factory=list)
+    employees: list = field(default_factory=list, repr=False)
+    customers: list = field(default_factory=list, repr=False)
 
 
 @dataclass
@@ -24,7 +24,7 @@ class BankAccount(BaseModel):
     bank_name: str
     bic: str
 
-    employees: list = field(default_factory=list)
+    employees: list = field(default_factory=list, repr=False)
 
 
 @dataclass
@@ -37,7 +37,9 @@ class Employee(BaseModel):
     address_id: int
     bank_account_id: int
 
-    works: list = field(default_factory=list)
+    works: list = field(default_factory=list, repr=False)
+    address: Address = field(default=None, repr=False)
+    bank_account: BankAccount = field(default=None, repr=False)
 
 
 @dataclass
@@ -49,7 +51,8 @@ class Customer(BaseModel):
     note: str
     address_id: int
 
-    works: list = field(default_factory=list)
+    works: list = field(default_factory=list, repr=False)
+    address: Address = field(default=None, repr=False)
 
 
 @dataclass

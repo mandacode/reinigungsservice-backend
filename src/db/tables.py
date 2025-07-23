@@ -9,13 +9,13 @@ from sqlalchemy import (
     JSON,
     MetaData,
     Date,
-    func, text
+    func, text, Float
 )
+from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.orm import registry, relationship
 
 from domain.models import Employee, Customer, Work, Address, BankAccount
 
-from db.config import engine
 
 mapper_registry = registry()
 metadata = MetaData()
@@ -75,7 +75,7 @@ works_table = Table(
     Column("id", Integer, primary_key=True),
     Column("customer_id", ForeignKey("customers.id"), nullable=False),
     Column("employee_id", ForeignKey("employees.id"), nullable=False),
-    Column("hours", DECIMAL(5, 2), nullable=False),
+    Column("hours", Float, nullable=False),
     Column("date", Date, index=True),
     Column("created_at", DateTime, server_default=func.now()),
     Column("updated_at", DateTime, server_default=func.now(),
@@ -85,35 +85,35 @@ works_table = Table(
 
 
 def run_mappers():
-    mapper_registry.map_imperatively(Address, addresses_table, properties={
-        "employees": relationship("Employee", backref="address"),
-        "customers": relationship("Customer", backref="address"),
-    })
-
-    mapper_registry.map_imperatively(
-        BankAccount, bank_accounts_table, properties={
-            "employees": relationship("Employee", backref="bank_account")}
-    )
+    mapper_registry.map_imperatively(Address, addresses_table)
+    mapper_registry.map_imperatively(BankAccount, bank_accounts_table)
 
     mapper_registry.map_imperatively(Employee, employees_table, properties={
-        "works": relationship("Work", backref="employee")
+        "works": relationship(Work, backref="employee"),
+        "address": relationship(Address, backref="employees", uselist=False),
+        "bank_account": relationship(BankAccount, backref="employees", uselist=False)
     })
 
     mapper_registry.map_imperatively(Customer, customers_table, properties={
-        "works": relationship("Work", backref="customer")
+        "works": relationship("Work", backref="customer"),
+        "address": relationship(Address, backref="customers", uselist=False)
     })
 
     mapper_registry.map_imperatively(Work, works_table)
 
-
-def create_tables():
-    metadata.create_all(bind=engine)
+    # mapper_registry.configure()
 
 
-def reset_id_sequence(session, table_name: str, pk_column: str):
+
+async def create_tables(engine: AsyncEngine):
+    async with engine.begin() as conn:
+        await conn.run_sync(metadata.create_all)
+
+
+async def reset_id_sequence(session, table_name: str, pk_column: str):
     sequence_name = f"{table_name}_{pk_column}_seq"
     stmt = text(
         f"SELECT setval('{sequence_name}', COALESCE((SELECT MAX({pk_column}) FROM {table_name}) + 1, 1), false)"
     )
-    session.execute(stmt)
-    session.commit()
+    await session.execute(stmt)
+    await session.commit()

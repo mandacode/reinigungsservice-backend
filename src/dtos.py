@@ -1,5 +1,6 @@
+import datetime
+
 from pydantic import BaseModel, Field
-from datetime import date
 
 
 class EmployeeDTO(BaseModel):
@@ -25,5 +26,11 @@ class WorkDayCreateDTO(BaseModel):
 
 
 class WorksCreateRequestDTO(BaseModel):
-    date: date
+    date: datetime.date
     work_days: list[WorkDayCreateDTO]
+
+
+class InvoicesCreateDTO(BaseModel):
+    start_date: datetime.date
+    end_date: datetime.date
+    last_invoice_number: int
