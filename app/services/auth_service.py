@@ -87,7 +87,7 @@ class AuthService:
         user = await self._user_repository.get_by_username(username)
         if user:
             raise UserAlreadyExistsError
-        user = User(username=username, password=password)
+        user = User(username=username, password=self.get_password_hash(password))
         await self._user_repository.add(user)
 
     @staticmethod
