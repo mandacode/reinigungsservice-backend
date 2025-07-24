@@ -1,22 +1,25 @@
 import os
 
 from dotenv import load_dotenv
+from pydantic import BaseModel
 
 load_dotenv()
 
+class Settings(BaseModel):
+    app_name: str = "Reinigungsservice"
+    debug: bool = False
+    database_url: str = os.getenv("DATABASE_URL")
+    secret_key: str = os.getenv("SECRET_KEY")
+    admin_key: str = os.getenv("ADMIN_KEY")
+    algorithm: str = "HS256"
+    access_token_lifespan: int = 30
+    google_drive_scopes: list[str] = [
+        "https://www.googleapis.com/auth/drive",
+        'https://www.googleapis.com/auth/drive.file',
+        'https://www.googleapis.com/auth/drive.readonly'
+    ]
+    google_drive_root_folder_id: str = os.getenv("GOOGLE_DRIVE_ROOT_FOLDER_ID")
+    template_file_id: str = os.getenv("GOOGLE_DRIVE_CUSTOMERS_TEMPLATE_ID")
+    seed_file_id: str = os.getenv("SEED_FILE_ID")
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-GOOGLE_API_CREDENTIALS_B64 = os.getenv("GOOGLE_API_CREDENTIALS_B64")
-SEED_FILE_ID = os.getenv("SEED_FILE_ID")
-TEMPLATE_FILE_ID = os.getenv("GOOGLE_DRIVE_CUSTOMERS_TEMPLATE_ID")
-GOOGLE_DRIVE_ROOT_FOLDER_ID = os.getenv("GOOGLE_DRIVE_ROOT_FOLDER_ID")
-
-GOOGLE_DRIVE_SCOPES = [
-    "https://www.googleapis.com/auth/drive",
-    'https://www.googleapis.com/auth/drive.file',
-    'https://www.googleapis.com/auth/drive.readonly'
-]
-
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM= "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES=30
+settings = Settings()

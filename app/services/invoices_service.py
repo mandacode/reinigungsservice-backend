@@ -5,7 +5,7 @@ import time
 
 from app.services.google_drive_service import GoogleDriveAsyncService
 from app.db.repositories import EmployeeRepository, CustomerRepository, WorkRepository
-from app.config import TEMPLATE_FILE_ID
+from app.config import settings
 from app.utils import timer, MONTH_MAPPER
 from app.domain.engine import generate_invoice
 
@@ -35,7 +35,7 @@ class CustomerInvoiceService:
         s = time.perf_counter()
         tasks = [
             self._drive.create_folder_structure(path),
-            self._drive.download(file_id=TEMPLATE_FILE_ID),
+            self._drive.download(file_id=settings.template_file_id),
             self._employee_repository.get_by_code(code='MJ'),
             self._customer_repository.get_all_with_addresses()
         ]

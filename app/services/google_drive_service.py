@@ -6,11 +6,7 @@ from aiogoogle import Aiogoogle
 from aiogoogle.auth.creds import ServiceAccountCreds
 
 from app.utils import timer
-from app.config import GOOGLE_DRIVE_ROOT_FOLDER_ID, GOOGLE_DRIVE_SCOPES
-
-
-
-
+from app.config import settings
 
 
 class GoogleDriveAsyncService:
@@ -23,10 +19,10 @@ class GoogleDriveAsyncService:
 
     def __init__(self, credentials: dict):
         self._creds = ServiceAccountCreds(
-            scopes=GOOGLE_DRIVE_SCOPES,
+            scopes=settings.google_drive_scopes,
             **credentials
         )
-        self.root_folder_id = GOOGLE_DRIVE_ROOT_FOLDER_ID
+        self.root_folder_id = settings.google_drive_root_folder_id
 
     @timer
     async def download(self, file_id: str) -> bytes:

@@ -2,6 +2,7 @@ from typing import Generic, TypeVar
 import datetime
 
 from sqlalchemy import select, delete, insert, func
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.domain.models import (
@@ -22,7 +23,7 @@ Model = TypeVar('Model', bound=BaseModel)
 class BaseRepository(Generic[Model]):
     _model: Model
 
-    def __init__(self, session):
+    def __init__(self, session: AsyncSession):
         self._session = session
 
     async def get_all(self) -> list[Model]:
@@ -44,6 +45,9 @@ class BaseRepository(Generic[Model]):
     async def delete(self, entity: Model) -> None:
         await self._session.delete(entity)
         await self._session.commit()
+
+    def get_session(self) -> AsyncSession:
+        return self._session
 
 
 class EmployeeRepository(BaseRepository):
@@ -112,7 +116,7 @@ class WorkRepository(BaseRepository):
 class UserRepository(BaseRepository):
     _model = User
 
-    async def get_by_username(self, username: str) -> bool:
+    async def get_by_username(self, username: str) -> User:
         stmt = select(self._model).where(self._model.username == username)
         result = await self._session.execute(stmt)
         return result.scalars().first()

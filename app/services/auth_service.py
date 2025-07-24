@@ -4,7 +4,7 @@ from jose import jwt
 from passlib.context import CryptContext
 
 from app.db.repositories import UserRepository, BlacklistedTokenRepository
-from app.config import SECRET_KEY, ALGORITHM
+from app.config import settings
 from app.domain.models import User, BlacklistedToken
 
 
@@ -12,6 +12,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class TokenIsBlacklistedError(Exception):
+    pass
+
+
+class UserAlreadyExistsError(Exception):
     pass
 
 
@@ -38,13 +42,17 @@ class AuthService:
         if await self._blacklisted_token_repository.is_blacklisted(token):
             raise TokenIsBlacklistedError
 
-        payload = jwt.decode(token, key=SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            token, key=settings.secret_key, algorithms=[settings.algorithm]
+        )
         username = payload.get("sub")
 
         return await self._user_repository.get_by_username(username)
 
     async def blacklist_token(self, token: str, user_id: int):
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            token, key=settings.secret_key, algorithms=[settings.algorithm]
+        )
         expires_at = payload.get("exp")
 
         if expires_at:
@@ -58,8 +66,6 @@ class AuthService:
             print(f"Blacklisting token: {blacklisted_token}")
             await self._blacklisted_token_repository.add(blacklisted_token)
 
-
-
     @staticmethod
     def create_access_token(data: dict, expires_delta):
         to_encode = data.copy()
@@ -71,9 +77,18 @@ class AuthService:
             expire = now + datetime.timedelta(minutes=15)
 
         to_encode.update({"exp": expire})
-        encoded_jwt = jwt.encode(to_encode, key=SECRET_KEY, algorithm=ALGORITHM)
+        encoded_jwt = jwt.encode(
+            to_encode, key=settings.secret_key, algorithm=settings.algorithm
+        )
 
         return encoded_jwt
+
+    async def register_user(self, username: str, password: str):
+        user = await self._user_repository.get_by_username(username)
+        if user:
+            raise UserAlreadyExistsError
+        user = User(username=username, password=password)
+        await self._user_repository.add(user)
 
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:

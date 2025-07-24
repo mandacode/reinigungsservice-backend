@@ -1,17 +1,29 @@
 import os
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, APIKeyHeader
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.config import get_session
-from app.db.repositories import EmployeeRepository, CustomerRepository, WorkRepository, UserRepository, BlacklistedTokenRepository
+from app.db.repositories import (
+    EmployeeRepository,
+    CustomerRepository,
+    WorkRepository,
+    UserRepository,
+    BlacklistedTokenRepository,
+    AddressRepository,
+    BankAccountRepository
+)
 from app.services.employee_service import EmployeeService
 from app.services.customer_service import CustomerService
 from app.services.work_service import WorkService
 from app.services.invoices_service import CustomerInvoiceService
 from app.services.google_drive_service import GoogleDriveAsyncService
 from app.services.auth_service import AuthService, TokenIsBlacklistedError
+from app.services.seed_db_service import SeedDbService
 from app.domain.models import User
+from app.config import settings
 
 
 def get_employee_repository(db=Depends(get_session)) -> EmployeeRepository:
@@ -83,4 +95,32 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+
+async def get_address_repository(db: AsyncSession = Depends(get_session)) -> AddressRepository:
+    return AddressRepository(db)
+
+async def get_bank_account_repository(db: AsyncSession = Depends(get_session)) -> BankAccountRepository:
+    return BankAccountRepository(db)
+
+async def get_seed_db_service(
+    drive: GoogleDriveAsyncService = Depends(get_google_drive_service),
+    session: AsyncSession = Depends(get_session)
+) -> SeedDbService:
+    return SeedDbService(
+        drive=drive,
+        address_repository=AddressRepository(session),
+        bank_account_repository=BankAccountRepository(session),
+        employee_repository=EmployeeRepository(session),
+        customer_repository=CustomerRepository(session),
+        work_repository=WorkRepository(session)
+    )
+
+admin_key_header = APIKeyHeader(name="admin_key", auto_error=False)
+
+async def verify_admin_key(admin_key: str = Depends(admin_key_header)):
+    if admin_key != settings.admin_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid admin key"
         )

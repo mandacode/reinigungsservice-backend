@@ -1,6 +1,6 @@
 import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class EmployeeDTO(BaseModel):
@@ -50,3 +50,15 @@ class TokenDTO(BaseModel):
     access_token: str
     token_type: str
     username: str
+
+
+class UserRegisterDTO(BaseModel):
+    username: str
+    password: str
+    confirm_password: str
+
+    @model_validator(mode='after')
+    def check_passwords_match(self) -> 'UserRegisterDTO':
+        if self.password != self.confirm_password:
+            raise ValueError("Passwords do not match")
+        return self
