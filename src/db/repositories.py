@@ -2,10 +2,11 @@ from typing import Generic, TypeVar
 import datetime
 
 from domain.models import (
-    Employee, Customer,  Address, BankAccount, Work, BaseModel
+    Employee, Customer,  Address, BankAccount, Work, BaseModel, User, BlacklistedToken
 )
 from sqlalchemy import select, delete, insert, func
 from sqlalchemy.orm import selectinload
+
 
 Model = TypeVar('Model', bound=BaseModel)
 
@@ -25,6 +26,14 @@ class BaseRepository(Generic[Model]):
 
     async def delete_all(self) -> None:
         await self._session.execute(delete(self._model))
+        await self._session.commit()
+
+    async def add(self, entity: Model) -> None:
+        self._session.add(entity)
+        await self._session.commit()
+
+    async def delete(self, entity: Model) -> None:
+        await self._session.delete(entity)
         await self._session.commit()
 
 
@@ -89,3 +98,21 @@ class WorkRepository(BaseRepository):
         )
         result = await self._session.execute(stmt)
         return result.all()
+
+
+class UserRepository(BaseRepository):
+    _model = User
+
+    async def get_by_username(self, username: str) -> bool:
+        stmt = select(self._model).where(self._model.username == username)
+        result = await self._session.execute(stmt)
+        return result.scalars().first()
+
+
+class BlacklistedTokenRepository(BaseRepository):
+    _model = BlacklistedToken
+
+    async def is_blacklisted(self, token: str) -> bool:
+        stmt = select(self._model).where(self._model.token == token)
+        result = await self._session.execute(stmt)
+        return result.scalars().first() is not None

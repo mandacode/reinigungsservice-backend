@@ -14,7 +14,7 @@ from sqlalchemy import (
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.orm import registry, relationship
 
-from domain.models import Employee, Customer, Work, Address, BankAccount
+from domain.models import Employee, Customer, Work, Address, BankAccount, User, BlacklistedToken
 
 
 mapper_registry = registry()
@@ -78,11 +78,27 @@ works_table = Table(
     Column("hours", Float, nullable=False),
     Column("date", Date, index=True),
     Column("created_at", DateTime, server_default=func.now()),
-    Column("updated_at", DateTime, server_default=func.now(),
-           onupdate=func.now()),
+    Column("updated_at", DateTime, server_default=func.now(), onupdate=func.now()),
 )
 
+users_table = Table(
+    "users", metadata,
+    Column("id", Integer, primary_key=True),
+    Column("username", String(50), nullable=False, unique=True),
+    Column("password", String(100), nullable=False),
+    Column("created_at", DateTime, server_default=func.now()),
+    Column("updated_at", DateTime, server_default=func.now(), onupdate=func.now()),
+)
 
+blacklisted_tokens_table = Table(
+    "blacklisted_tokens", metadata,
+    Column("id", Integer, primary_key=True),
+    Column("token", String(500), nullable=False, unique=True),
+    Column("expires_at", DateTime, nullable=False),
+    Column("user_id", ForeignKey("users.id"), nullable=False),
+    Column("created_at", DateTime, server_default=func.now()),
+    Column("updated_at", DateTime, server_default=func.now(), onupdate=func.now()),
+)
 
 def run_mappers():
     mapper_registry.map_imperatively(Address, addresses_table)
@@ -101,8 +117,8 @@ def run_mappers():
 
     mapper_registry.map_imperatively(Work, works_table)
 
-    # mapper_registry.configure()
-
+    mapper_registry.map_imperatively(User, users_table)
+    mapper_registry.map_imperatively(BlacklistedToken, blacklisted_tokens_table)
 
 
 async def create_tables(engine: AsyncEngine):

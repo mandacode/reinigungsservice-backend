@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
 
 from api.controllers import router
 from db.tables import create_tables, run_mappers
@@ -22,7 +23,7 @@ app = FastAPI(lifespan=lifespan)
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this later
+    allow_origins=["http://localhost:5173",],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,3 +31,5 @@ app.add_middleware(
 
 # Include the API router
 app.include_router(router)
+
+

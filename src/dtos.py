@@ -34,3 +34,14 @@ class InvoicesCreateDTO(BaseModel):
     start_date: datetime.date
     end_date: datetime.date
     last_invoice_number: int
+
+
+class UserLoginDTO(BaseModel):
+    username: str
+    password: str
+
+
+class TokenDTO(BaseModel):
+    access_token: str
+    token_type: str
+    username: str

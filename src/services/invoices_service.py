@@ -16,14 +16,14 @@ class CustomerInvoiceService:
     def __init__(
             self,
             drive: GoogleDriveAsyncService,
-            employee_repo: EmployeeRepository,
-            customer_repo: CustomerRepository,
-            work_repo: WorkRepository,
+            employee_repository: EmployeeRepository,
+            customer_repository: CustomerRepository,
+            work_repository: WorkRepository,
     ):
         self._drive = drive
-        self._employee_repo = employee_repo
-        self._customer_repo = customer_repo
-        self._work_repo = work_repo
+        self._employee_repository = employee_repository
+        self._customer_repository = customer_repository
+        self._work_repository = work_repository
 
     @timer
     async def generate_invoices(
@@ -37,8 +37,8 @@ class CustomerInvoiceService:
         tasks = [
             self._drive.create_folder_structure(path),
             self._drive.download(file_id=TEMPLATE_FILE_ID),
-            self._employee_repo.get_by_code(code='MJ'),
-            self._customer_repo.get_all_with_addresses()
+            self._employee_repository.get_by_code(code='MJ'),
+            self._customer_repository.get_all_with_addresses()
         ]
         folder_id, template, employer, customers = await asyncio.gather(*tasks)
         e = time.perf_counter()
@@ -46,7 +46,7 @@ class CustomerInvoiceService:
 
         customers_by_id = {customer.id: customer for customer in customers}
 
-        works = await self._work_repo.get_by_period(
+        works = await self._work_repository.get_by_period(
             start_date=start_date,
             end_date=end_date
         )

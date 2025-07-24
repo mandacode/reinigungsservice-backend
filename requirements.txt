@@ -8,3 +8,6 @@ alembic==1.16.2
 asyncpg==0.30.0
 aiogoogle==5.15.0
 docxtpl==0.20.1
+passlib==1.7.4
+bcrypt==3.2.2
+python-jose==3.5.0

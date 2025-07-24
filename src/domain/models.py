@@ -4,8 +4,7 @@ from dataclasses import dataclass, field
 
 @dataclass
 class BaseModel:
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
+    pass
 
 
 @dataclass
@@ -61,3 +60,17 @@ class Work:
     employee_id: int
     hours: float
     date: datetime.date
+
+# TODO move to separate package 'auth'
+
+@dataclass
+class User(BaseModel):
+    username: str
+    password: str
+
+
+@dataclass
+class BlacklistedToken(BaseModel):
+    token: str
+    expires_at: datetime.datetime
+    user_id: int

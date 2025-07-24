@@ -58,27 +58,27 @@ class GoogleDriveAsyncService:
                 "mimeType": mime_type,
                 "parents": [parent_folder_id]
             }
-            file = await self.get_file_by_name(filename, parent_folder_id, aiogoogle, drive_v3)
-            if file:
-                metadata['mimeType'] = 'application/vnd.google-apps.document'
-                await self.update_file(
-                    file_id=file['id'],
-                    metadata=metadata,
-                    content=content,
-                    drive=drive_v3,
-                    aiogoogle=aiogoogle
-                )
-                file_id = file['id']
-                print(f"File {filename} uploaded successfully. (UPDATED)")
-
-            else:
-                file_id = await self.create_file(
-                    metadata=metadata,
-                    content=content,
-                    drive=drive_v3,
-                    aiogoogle=aiogoogle
-                )
-                print(f"File {filename} uploaded successfully. (CREATED)")
+            # file = await self.get_file_by_name(filename, parent_folder_id, aiogoogle, drive_v3)
+            # if file:
+            #     metadata['mimeType'] = 'application/vnd.google-apps.document'
+            #     await self.update_file(
+            #         file_id=file['id'],
+            #         metadata=metadata,
+            #         content=content,
+            #         drive=drive_v3,
+            #         aiogoogle=aiogoogle
+            #     )
+            #     file_id = file['id']
+            #     print(f"File {filename} uploaded successfully. (UPDATED)")
+            #
+            # else:
+            file_id = await self.create_file(
+                metadata=metadata,
+                content=content,
+                drive=drive_v3,
+                aiogoogle=aiogoogle
+            )
+            print(f"File {filename} uploaded successfully. (CREATED)")
             return file_id
 
     @timer

@@ -16,3 +16,7 @@ GOOGLE_DRIVE_SCOPES = [
     'https://www.googleapis.com/auth/drive.file',
     'https://www.googleapis.com/auth/drive.readonly'
 ]
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM= "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES=30

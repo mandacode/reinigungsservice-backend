@@ -1,15 +1,23 @@
 import asyncio
+import datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import JWTError
 
-from dtos import EmployeeDTO, CustomerDTO, WorksCreateRequestDTO, InvoicesCreateDTO
+from dtos import (
+    EmployeeDTO, CustomerDTO, WorksCreateRequestDTO, InvoicesCreateDTO, UserLoginDTO, TokenDTO
+)
 from api.dependencies import (
     get_employee_service,
     get_customer_service,
     get_work_service,
-    get_invoice_service
+    get_invoice_service,
+    get_auth_service,
+    get_current_user
 )
-
+from config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
+from services.auth_service import TokenIsBlacklistedError
 
 router = APIRouter(prefix="/api")
 
@@ -45,3 +53,55 @@ async def create_invoices_controller(
         )
     )
     return {"message": "Invoice generation started in the background."}
+
+
+
+
+
+@router.post("/auth/login", response_model=TokenDTO)
+async def login(creds: UserLoginDTO, service = Depends(get_auth_service)):
+    user = await service.authenticate(creds.username, creds.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = service.create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "Bearer",
+        "username": user.username
+    }
+
+
+@router.get("/protected")
+async def protected_route(current_user = Depends(get_current_user)):
+    return {"message": f"Hello {current_user.username}, this is a protected route!"}
+
+
+@router.post("/auth/logout")
+async def logout(
+    credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+    service = Depends(get_auth_service),
+):
+    token = credentials.credentials
+    try:
+        user = await service.get_current_user(token=token)
+    except TokenIsBlacklistedError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token is blacklisted",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    try:
+        await service.blacklist_token(token=token, user_id=user.id)
+        return {"message": "Successfully logged out"}
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
