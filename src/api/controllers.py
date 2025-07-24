@@ -6,7 +6,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError
 
 from dtos import (
-    EmployeeDTO, CustomerDTO, WorksCreateRequestDTO, InvoicesCreateDTO, UserLoginDTO, TokenDTO
+    EmployeeDTO, CustomerDTO, WorksCreateRequestDTO, InvoicesCreateDTO, UserLoginDTO, TokenDTO, UserDTO
 )
 from api.dependencies import (
     get_employee_service,
@@ -55,9 +55,6 @@ async def create_invoices_controller(
     return {"message": "Invoice generation started in the background."}
 
 
-
-
-
 @router.post("/auth/login", response_model=TokenDTO)
 async def login(creds: UserLoginDTO, service = Depends(get_auth_service)):
     user = await service.authenticate(creds.username, creds.password)
@@ -91,6 +88,7 @@ async def logout(
     service = Depends(get_auth_service),
 ):
     token = credentials.credentials
+
     try:
         user = await service.get_current_user(token=token)
     except TokenIsBlacklistedError:
@@ -105,3 +103,16 @@ async def logout(
         return {"message": "Successfully logged out"}
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+
+@router.get("/auth/me", response_model=UserDTO)
+async def get_current_user_info(
+    user = Depends(get_current_user)
+):
+    return user
+
+
+@router.get("/health")
+async def health_check():
+    return {"status": "ok", "message": "API is running"}
+
