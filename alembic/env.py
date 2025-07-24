@@ -18,7 +18,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from db.tables import metadata
+from app.db.tables import metadata
 target_metadata = metadata
 
 # other values from the config, defined by the needs of env.py,

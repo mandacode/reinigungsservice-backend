@@ -21,9 +21,9 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-WORKDIR /opt/src
+WORKDIR /opt/src/
 
-COPY ./src .
+COPY . .
 
 EXPOSE 8000
 

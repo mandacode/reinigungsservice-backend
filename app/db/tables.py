@@ -14,8 +14,9 @@ from sqlalchemy import (
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.orm import registry, relationship
 
-from domain.models import Employee, Customer, Work, Address, BankAccount, User, BlacklistedToken
-
+from app.domain.models import (
+    Employee, Customer, Work, Address, BankAccount, User, BlacklistedToken
+)
 
 mapper_registry = registry()
 metadata = MetaData()

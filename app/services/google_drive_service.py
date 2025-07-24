@@ -4,10 +4,9 @@ import json
 
 from aiogoogle import Aiogoogle
 from aiogoogle.auth.creds import ServiceAccountCreds
-from aiogoogle.models import MediaUpload
 
-from utils import timer
-from config import GOOGLE_DRIVE_ROOT_FOLDER_ID, GOOGLE_DRIVE_SCOPES
+from app.utils import timer
+from app.config import GOOGLE_DRIVE_ROOT_FOLDER_ID, GOOGLE_DRIVE_SCOPES
 
 
 

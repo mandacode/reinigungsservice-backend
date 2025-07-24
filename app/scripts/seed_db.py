@@ -1,19 +1,17 @@
 import asyncio
 import datetime
 
-from db.config import async_session, engine
-from db.repositories import (
+from app.db.config import async_session, engine
+from app.db.repositories import (
     EmployeeRepository,
     CustomerRepository,
     AddressRepository,
     BankAccountRepository,
     WorkRepository
 )
-from db.tables import create_tables, run_mappers, reset_id_sequence
-from services.google_drive_service import GoogleDriveAsyncService
-
-from config import SEED_FILE_ID, GOOGLE_API_CREDENTIALS_B64
-
+from app.db.tables import create_tables, run_mappers, reset_id_sequence
+from app.services.google_drive_service import GoogleDriveAsyncService
+from app.config import SEED_FILE_ID, GOOGLE_API_CREDENTIALS_B64
 
 
 async def seed_db():

@@ -11,12 +11,12 @@ services:
     depends_on:
       - postgres
     volumes:
-        - ./src:/opt/src
+        - ./app:/opt/src/app
     networks:
       - reinigungsservice_network
     ports:
       - "8000:8000"
-    command: [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
+    command: [ "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
 
   postgres:
     container_name: postgres

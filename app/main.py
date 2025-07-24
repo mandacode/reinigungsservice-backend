@@ -2,11 +2,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer
 
-from api.controllers import router
-from db.tables import create_tables, run_mappers
-from db.config import engine
+from app.api.controllers import router
+from app.db.tables import create_tables, run_mappers
+from app.db.config import engine
 
 
 @asynccontextmanager

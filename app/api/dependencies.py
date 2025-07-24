@@ -3,15 +3,15 @@ import os
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from db.config import get_session
-from db.repositories import EmployeeRepository, CustomerRepository, WorkRepository, UserRepository, BlacklistedTokenRepository
-from services.employee_service import EmployeeService
-from services.customer_service import CustomerService
-from services.work_service import WorkService
-from services.invoices_service import CustomerInvoiceService
-from services.google_drive_service import GoogleDriveAsyncService
-from services.auth_service import AuthService, TokenIsBlacklistedError
-from domain.models import User
+from app.db.config import get_session
+from app.db.repositories import EmployeeRepository, CustomerRepository, WorkRepository, UserRepository, BlacklistedTokenRepository
+from app.services.employee_service import EmployeeService
+from app.services.customer_service import CustomerService
+from app.services.work_service import WorkService
+from app.services.invoices_service import CustomerInvoiceService
+from app.services.google_drive_service import GoogleDriveAsyncService
+from app.services.auth_service import AuthService, TokenIsBlacklistedError
+from app.domain.models import User
 
 
 def get_employee_repository(db=Depends(get_session)) -> EmployeeRepository:

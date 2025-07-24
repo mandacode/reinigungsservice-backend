@@ -3,12 +3,11 @@ import datetime
 import collections
 import time
 
-from services.google_drive_service import GoogleDriveAsyncService
-from db.repositories import EmployeeRepository, CustomerRepository, WorkRepository
-from config import TEMPLATE_FILE_ID
-from utils import timer, MONTH_MAPPER
-from domain.engine import generate_invoice
-from domain.models import Work
+from app.services.google_drive_service import GoogleDriveAsyncService
+from app.db.repositories import EmployeeRepository, CustomerRepository, WorkRepository
+from app.config import TEMPLATE_FILE_ID
+from app.utils import timer, MONTH_MAPPER
+from app.domain.engine import generate_invoice
 
 
 class CustomerInvoiceService:

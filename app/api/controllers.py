@@ -5,10 +5,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError
 
-from dtos import (
+from app.dtos import (
     EmployeeDTO, CustomerDTO, WorksCreateRequestDTO, InvoicesCreateDTO, UserLoginDTO, TokenDTO, UserDTO
 )
-from api.dependencies import (
+from app.api.dependencies import (
     get_employee_service,
     get_customer_service,
     get_work_service,
@@ -16,8 +16,8 @@ from api.dependencies import (
     get_auth_service,
     get_current_user
 )
-from config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
-from services.auth_service import TokenIsBlacklistedError
+from app.config import ACCESS_TOKEN_EXPIRE_MINUTES
+from app.services.auth_service import TokenIsBlacklistedError
 
 router = APIRouter(prefix="/api")
 

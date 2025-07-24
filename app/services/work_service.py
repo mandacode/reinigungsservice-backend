@@ -1,5 +1,5 @@
-from db.repositories import WorkRepository
-from dtos import WorksCreateRequestDTO
+from app.db.repositories import WorkRepository
+from app.dtos import WorksCreateRequestDTO
 
 
 class WorkService:

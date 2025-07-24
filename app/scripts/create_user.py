@@ -5,10 +5,10 @@ import datetime
 from passlib.context import CryptContext
 
 
-from db.config import async_session, engine
-from domain.models import User
-from db.tables import create_tables, run_mappers
-from db.repositories import UserRepository
+from app.db.config import async_session, engine
+from app.domain.models import User
+from app.db.tables import create_tables, run_mappers
+from app.db.repositories import UserRepository
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

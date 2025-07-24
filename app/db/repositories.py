@@ -1,14 +1,23 @@
 from typing import Generic, TypeVar
 import datetime
 
-from domain.models import (
-    Employee, Customer,  Address, BankAccount, Work, BaseModel, User, BlacklistedToken
-)
 from sqlalchemy import select, delete, insert, func
 from sqlalchemy.orm import selectinload
 
+from app.domain.models import (
+    Employee,
+    Customer,
+    Address,
+    BankAccount,
+    Work,
+    BaseModel,
+    User,
+    BlacklistedToken
+)
+
 
 Model = TypeVar('Model', bound=BaseModel)
+
 
 class BaseRepository(Generic[Model]):
     _model: Model

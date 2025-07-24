@@ -1,5 +1,5 @@
-from db.repositories import CustomerRepository
-from domain.models import Customer
+from app.db.repositories import CustomerRepository
+from app.domain.models import Customer
 
 
 class CustomerService:
