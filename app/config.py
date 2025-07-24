@@ -11,6 +11,7 @@ class Settings(BaseModel):
     database_url: str = os.getenv("DATABASE_URL")
     secret_key: str = os.getenv("SECRET_KEY")
     admin_key: str = os.getenv("ADMIN_KEY")
+    frontend_domain: str = os.getenv("FRONTEND_DOMAIN")
     algorithm: str = "HS256"
     access_token_lifespan: int = 30
     google_drive_scopes: list[str] = [

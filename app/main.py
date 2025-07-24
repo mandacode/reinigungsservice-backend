@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.controllers import router
 from app.db.tables import create_tables, run_mappers
 from app.db.config import engine
+from app.config import settings
 
 
 @asynccontextmanager
@@ -22,13 +23,11 @@ app = FastAPI(lifespan=lifespan)
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173",],
+    allow_origins=[settings.frontend_domain,],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
 # Include the API router
 app.include_router(router)
-
-
