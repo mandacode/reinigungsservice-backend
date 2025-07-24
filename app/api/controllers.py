@@ -42,19 +42,26 @@ router = APIRouter(prefix="/api")
 
 
 @router.get("/employees", response_model=list[EmployeeDTO])
-async def get_employees_controller(service: EmployeeService = Depends(get_employee_service)):
+async def get_employees_controller(
+        service: EmployeeService = Depends(get_employee_service),
+        _ = Depends(get_current_user)
+):
     return await service.get_all_employees()
 
 
 @router.get("/customers", response_model=list[CustomerDTO])
-async def get_customers_controller(service: CustomerService = Depends(get_customer_service)):
+async def get_customers_controller(
+        service: CustomerService = Depends(get_customer_service),
+        _ = Depends(get_current_user)
+):
     return await service.get_all_customers()
 
 
 @router.post("/works")
 async def create_works_controller(
         dto: WorksCreateRequestDTO,
-        service: WorkService = Depends(get_work_service)
+        service: WorkService = Depends(get_work_service),
+        _ = Depends(get_current_user)
 ):
     return await service.create_works(dto)
 
@@ -62,7 +69,8 @@ async def create_works_controller(
 @router.post("/invoices")
 async def create_invoices_controller(
         dto: InvoicesCreateDTO,
-        service: CustomerInvoiceService = Depends(get_invoice_service)
+        service: CustomerInvoiceService = Depends(get_invoice_service),
+        _ = Depends(get_current_user)
 ):
     asyncio.create_task(
         service.generate_invoices(
@@ -75,7 +83,10 @@ async def create_invoices_controller(
 
 
 @router.post("/auth/login", response_model=TokenDTO)
-async def create_access_token_controller(creds: UserLoginDTO, service: AuthService = Depends(get_auth_service)):
+async def create_access_token_controller(
+        creds: UserLoginDTO,
+        service: AuthService = Depends(get_auth_service),
+):
     user = await service.authenticate(creds.username, creds.password)
     if not user:
         raise HTTPException(
@@ -105,6 +116,7 @@ async def protected_route(current_user: User = Depends(get_current_user)):
 async def logout(
     credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
     service: AuthService = Depends(get_auth_service),
+    _ = Depends(get_current_user)
 ):
     token = credentials.credentials
 
