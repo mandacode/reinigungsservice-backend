@@ -1,13 +1,32 @@
 import asyncio
 import datetime
 import collections
-import time
+import io
+
+from docxtpl import DocxTemplate
 
 from app.services.google_drive_service import GoogleDriveAsyncService
-from app.db.repositories import EmployeeRepository, CustomerRepository, WorkRepository
+from app.repositories.employee_repository import EmployeeRepository
+from app.repositories.customer_repository import CustomerRepository
+from app.repositories.work_repository import WorkRepository
 from app.config import settings
-from app.utils import timer, MONTH_MAPPER
-from app.domain.engine import generate_invoice
+from app.utils import timer
+
+
+MONTH_MAPPER = {
+    1: "Januar",
+    2: "Februar",
+    3: "März",
+    4: "April",
+    5: "Mai",
+    6: "Juni",
+    7: "Juli",
+    8: "August",
+    9: "September",
+    10: "Oktober",
+    11: "November",
+    12: "Dezember"
+}
 
 
 class CustomerInvoiceService:
@@ -31,28 +50,26 @@ class CustomerInvoiceService:
             end_date: datetime.date,
             last_invoice_number: str = '1'
     ):
-        path = f"customers/{start_date.year}/{start_date.month:02d}"
-        s = time.perf_counter()
-        tasks = [
-            self._drive.create_folder_structure(path),
-            self._drive.download(file_id=settings.template_file_id),
-            self._employee_repository.get_by_code(code='MJ'),
-            self._customer_repository.get_all_with_addresses()
-        ]
-        folder_id, template, employer, customers = await asyncio.gather(*tasks)
-        e = time.perf_counter()
-        print(f"Folder created and template downloaded in {e - s:.2f} seconds")
-
+        employer = await self._employee_repository.get_by_code(code='MJ')
+        customers = await self._customer_repository.get_all_with_addresses()
         customers_by_id = {customer.id: customer for customer in customers}
 
         works = await self._work_repository.get_by_period(
             start_date=start_date,
             end_date=end_date
         )
-
         customer_works = collections.defaultdict(list)
         for work in works:
             customer_works[work.customer_id].append(work)
+
+        path = f"customers/{start_date.year}/{start_date.month:02d}"
+
+        tasks = [
+            self._drive.create_folder_structure(path),
+            self._drive.download(file_id=settings.template_file_id),
+        ]
+        folder_id, template = await asyncio.gather(*tasks)
+
 
         to_upload = []
         for invoice_number, (customer_id, works) in enumerate(customer_works.items(), start=int(last_invoice_number)):
@@ -99,7 +116,7 @@ class CustomerInvoiceService:
                 "brutto": f"{total * 1.19:.2f} €"
             }
 
-            content = generate_invoice(template=template, data=data)
+            content = self.render_invoice(template=template, data=data)
 
             filename = self._create_filename(customer.name)
             to_upload.append((content, filename))
@@ -133,6 +150,13 @@ class CustomerInvoiceService:
         )
         return f'{customer_name}.docx'
 
+    @staticmethod
+    def render_invoice(template: bytes, data: dict) -> bytes:
+        doc = DocxTemplate(io.BytesIO(template))
+        doc.render(context=data)
+        output = io.BytesIO()
+        doc.save(output)
+        return output.getvalue()
 
 # TODO 5. Save copy to S3
 # TODO 6. Save invoice to database

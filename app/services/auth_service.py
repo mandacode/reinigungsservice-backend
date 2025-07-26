@@ -3,9 +3,11 @@ import datetime
 from jose import jwt
 from passlib.context import CryptContext
 
-from app.db.repositories import UserRepository, BlacklistedTokenRepository
 from app.config import settings
-from app.domain.models import User, BlacklistedToken
+from app.repositories.blacklisted_token_repository import BlacklistedTokenRepository
+from app.repositories.user_repository import UserRepository
+from app.models.blacklisted_token import BlacklistedToken
+from app.models.user import User
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

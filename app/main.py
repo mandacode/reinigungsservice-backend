@@ -3,9 +3,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.controllers import router
-from app.db.tables import create_tables, run_mappers
-from app.db.config import engine
+from app.api import router
+from app.database.orm import create_tables, run_mappers
+from app.database.config import engine
 from app.config import settings
 
 
@@ -31,3 +31,6 @@ app.add_middleware(
 
 # Include the API router
 app.include_router(router)
+
+
+

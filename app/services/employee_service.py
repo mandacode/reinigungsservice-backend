@@ -1,5 +1,5 @@
-from app.db.repositories import EmployeeRepository
-from app.domain.models import Employee
+from app.repositories.employee_repository import EmployeeRepository
+from app.models.employee import Employee
 
 
 class EmployeeService:

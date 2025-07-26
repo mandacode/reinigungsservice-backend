@@ -1,13 +1,11 @@
 import datetime
 
-from app.db.repositories import (
-    CustomerRepository,
-    EmployeeRepository,
-    WorkRepository,
-    AddressRepository,
-    BankAccountRepository
-)
-from app.db.tables import reset_id_sequence
+from app.repositories.customer_repository import CustomerRepository
+from app.repositories.employee_repository import EmployeeRepository
+from app.repositories.work_repository import WorkRepository
+from app.repositories import AddressRepository, BankAccountRepository
+
+from app.database.orm import reset_id_sequence
 from app.services.google_drive_service import GoogleDriveAsyncService
 from app.config import settings
 
