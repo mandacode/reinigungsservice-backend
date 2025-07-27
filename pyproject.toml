@@ -30,7 +30,7 @@ Homepage = "https://github.com/mandacode/reinigungsservice-backend"
 
 [tools.ruff]
 line-length = 88
-# ignore print
+exclude = ["versions", "__pycache__", '.venv']
 lint.ignore = [
     "T20",  # print statement
 ]
