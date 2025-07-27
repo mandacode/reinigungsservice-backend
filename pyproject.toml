@@ -1,0 +1,29 @@
+[project]
+name = "Reinigungsservice API"
+version = "0.1.0"
+description = "Backend API for Reinigungsservice, providing endpoints for managing cleaning service requests and customer data."
+authors = [
+    { name = "Krystian Jarmuł", email = "mandacode@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "fastapi==0.115.13",
+    "uvicorn==0.34.3",
+    "SQLAlchemy==2.0.41",
+    "pydantic==2.9.0",
+    "python-dotenv==1.1.1",
+    "psycopg2-binary==2.9.7",
+    "alembic==1.16.2",
+    "asyncpg==0.30.0",
+    "aiogoogle==5.15.0",
+    "docxtpl==0.20.1",
+    "passlib==1.7.4",
+    "bcrypt==3.2.2",
+    "python-jose==3.5.0",
+    "ruff==0.12.5"
+]
+
+[project.urls]
+Homepage = "https://github.com/mandacode/reinigungsservice-backend"
