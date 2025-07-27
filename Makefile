@@ -7,7 +7,7 @@ up:
 	docker compose up --build
 
 lint:
-	docker compose exec $(SERVICE) ruff check app
+	docker compose exec $(SERVICE) ruff check --fix app
 
 format:
 	docker compose exec $(SERVICE) ruff format app

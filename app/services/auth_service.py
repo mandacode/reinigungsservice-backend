@@ -66,12 +66,14 @@ class AuthService:
             await self._blacklisted_token_repository.add(blacklisted_token)
 
     @staticmethod
-    def create_access_token(data: dict, expires_delta):
+    def create_access_token(data: dict):
+        expires_in = datetime.timedelta(minutes=settings.access_token_lifespan)
+
         to_encode = data.copy()
         now = datetime.datetime.now(datetime.UTC)
 
-        if expires_delta:
-            expire = now + expires_delta
+        if expires_in:
+            expire = now + expires_in
         else:
             expire = now + datetime.timedelta(minutes=15)
 

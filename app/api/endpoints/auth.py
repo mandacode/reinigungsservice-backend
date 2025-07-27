@@ -1,4 +1,3 @@
-import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -6,7 +5,6 @@ from jose import JWTError
 
 from app.models.user import User
 from app.dependencies import get_auth_service, get_current_user, verify_admin_key
-from app.config import settings
 from app.schemas.auth import TokenDTO, UserLoginDTO, UserDTO, UserRegisterDTO
 from app.services.auth_service import (
     TokenIsBlacklistedError,
@@ -30,10 +28,7 @@ async def create_access_token_controller(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token_expires = datetime.timedelta(minutes=settings.access_token_lifespan)
-    access_token = service.create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
-    )
+    access_token = service.create_access_token(data={"sub": user.username})
 
     return {
         "access_token": access_token,
