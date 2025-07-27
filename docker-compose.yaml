@@ -12,6 +12,7 @@ services:
       - postgres
     volumes:
         - ./app:/opt/src/app
+        - ./tests:/opt/src/tests
     networks:
       - reinigungsservice_network
     ports:
