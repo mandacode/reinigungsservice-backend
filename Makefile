@@ -1,6 +1,7 @@
 SERVICE=fastapi
 
-.PHONY: up lint format test migrate
+.PHONY: up lint format test migrate encode-creds
+
 
 up:
 	docker compose up --build
@@ -25,3 +26,12 @@ logs:
 
 bash:
 	docker compose exec $(SERVICE) bash
+
+## make encode-creds FILE=path/to/your/google_credentials.json
+encode-googleapi-creds:
+	@if [ -z "$(FILE)" ]; then \
+		echo "Error: FILE variable is not set. Usage: make encode-creds FILE=path/to/file.json"; \
+		exit 1; \
+	fi
+	base64 -i $(FILE) > google_credentials_base64.txt | tr -d '\n'
+	echo "Encoded $(FILE) to google_credentials_base64.txt"

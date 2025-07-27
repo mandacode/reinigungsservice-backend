@@ -62,6 +62,7 @@ ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 GOOGLE_DRIVE_FOLDER_ID=your_google_drive_folder_id
 GOOGLE_DRIVE_CREDENTIALS_JSON=your_google_drive_credentials_json
+SEED_FILE_ID=your_seed_file_id
 ```
 
 ### 3. Convert Google API credentials JSON to base64
@@ -73,22 +74,22 @@ Then copy the content of `google_credentials_base64.txt` into your `.env` file a
 
 ### 4.  Run with Docker
 ```bash
-docker-compose up --build
+make up
 ```
 
 ### 5. Run migrations
 ```bash
-docker-compose exec fastapi alembic upgrade head
+make migrate
 ```
 
 ## 📬 API Documentation
 Once running, access interactive docs:
 
-Swagger UI: http://localhost:8000/docs
-ReDoc: http://localhost:8000/redoc
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
 ## 🧪 Running Tests
 To run tests, use the following command:
 ```bash
-docker-compose exec fastapi pytest
+make test
 ```
