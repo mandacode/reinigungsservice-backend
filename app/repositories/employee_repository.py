@@ -10,12 +10,10 @@ class EmployeeRepository(BaseRepository):
 
     async def get_by_code(self, code: str) -> Employee:
         stmt = (
-            select(
-                self._model
-            )
+            select(self._model)
             .options(
                 selectinload(self._model.address),
-                selectinload(self._model.bank_account)
+                selectinload(self._model.bank_account),
             )
             .where(self._model.code == code)
         )

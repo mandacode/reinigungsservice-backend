@@ -12,5 +12,5 @@ def timer(func: Callable[..., Awaitable]) -> Callable:
         run_time = end_time - start_time
         print(f"Finished {func.__name__!r} in {run_time:.10f} secs")
         return result
-    return wrapper_timer
 
+    return wrapper_timer

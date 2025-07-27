@@ -19,8 +19,7 @@ router.include_router(customers_router)
 
 @router.post("/seed-db")
 async def seed_db_controller(
-        _ = Depends(verify_admin_key),
-        service: SeedDbService = Depends(get_seed_db_service)
+    _=Depends(verify_admin_key), service: SeedDbService = Depends(get_seed_db_service)
 ):
     await service.seed_db()
     return {"status": "ok", "message": "Database seeded successfully"}

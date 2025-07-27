@@ -1,9 +1,20 @@
-from sqlalchemy import Column, Integer, Table, String, DECIMAL, JSON, ForeignKey, DateTime, func
+from sqlalchemy import (
+    Column,
+    Integer,
+    Table,
+    String,
+    DECIMAL,
+    JSON,
+    ForeignKey,
+    DateTime,
+    func,
+)
 
 from app.database.tables import metadata
 
 employees = Table(
-    "employees", metadata,
+    "employees",
+    metadata,
     Column("id", Integer, primary_key=True),
     Column("name", String(100), nullable=False, index=True),
     Column("code", String(2), nullable=False, index=True),

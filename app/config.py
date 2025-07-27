@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 load_dotenv()
 
+
 class Settings(BaseModel):
     app_name: str = "Reinigungsservice"
     debug: bool = False
@@ -16,11 +17,12 @@ class Settings(BaseModel):
     access_token_lifespan: int = 30
     google_drive_scopes: list[str] = [
         "https://www.googleapis.com/auth/drive",
-        'https://www.googleapis.com/auth/drive.file',
-        'https://www.googleapis.com/auth/drive.readonly'
+        "https://www.googleapis.com/auth/drive.file",
+        "https://www.googleapis.com/auth/drive.readonly",
     ]
     google_drive_root_folder_id: str = os.getenv("GOOGLE_DRIVE_ROOT_FOLDER_ID")
     template_file_id: str = os.getenv("GOOGLE_DRIVE_CUSTOMERS_TEMPLATE_ID")
     seed_file_id: str = os.getenv("SEED_FILE_ID")
+
 
 settings = Settings()

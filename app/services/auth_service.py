@@ -22,11 +22,10 @@ class UserAlreadyExistsError(Exception):
 
 
 class AuthService:
-
     def __init__(
-            self,
-            user_repository: UserRepository,
-            blacklisted_token_repository: BlacklistedTokenRepository
+        self,
+        user_repository: UserRepository,
+        blacklisted_token_repository: BlacklistedTokenRepository,
     ):
         self._user_repository = user_repository
         self._blacklisted_token_repository = blacklisted_token_repository
@@ -40,7 +39,6 @@ class AuthService:
         return user
 
     async def get_current_user(self, token: str) -> User:
-
         if await self._blacklisted_token_repository.is_blacklisted(token):
             raise TokenIsBlacklistedError
 
@@ -63,7 +61,6 @@ class AuthService:
                 token=token,
                 expires_at=exp,
                 user_id=user_id,
-
             )
             print(f"Blacklisting token: {blacklisted_token}")
             await self._blacklisted_token_repository.add(blacklisted_token)

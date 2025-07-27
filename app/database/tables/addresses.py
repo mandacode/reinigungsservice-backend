@@ -4,7 +4,8 @@ from app.database.tables import metadata
 
 
 addresses = Table(
-    "addresses", metadata,
+    "addresses",
+    metadata,
     Column("id", Integer, primary_key=True),
     Column("street_address", String(100), nullable=False),
     Column("postal_code", String(6), nullable=False),

@@ -4,7 +4,8 @@ from app.database.tables import metadata
 
 
 works = Table(
-    "works", metadata,
+    "works",
+    metadata,
     Column("id", Integer, primary_key=True),
     Column("customer_id", ForeignKey("customers.id"), nullable=False),
     Column("employee_id", ForeignKey("employees.id"), nullable=False),

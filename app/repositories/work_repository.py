@@ -16,16 +16,11 @@ class WorkRepository(BaseRepository):
                 self._model.customer_id,
                 self._model.date,
                 Customer.hourly_rate,
-                func.sum(self._model.hours).label('total_hours'),
-                func.sum(self._model.hours * Customer.hourly_rate).label('total_price')
+                func.sum(self._model.hours).label("total_hours"),
+                func.sum(self._model.hours * Customer.hourly_rate).label("total_price"),
             )
-            .join(
-                Customer, self._model.customer_id == Customer.id
-            )
-            .where(
-                self._model.date >= start_date,
-                self._model.date <= end_date
-            )
+            .join(Customer, self._model.customer_id == Customer.id)
+            .where(self._model.date >= start_date, self._model.date <= end_date)
             .group_by(self._model.customer_id, self._model.date, Customer.hourly_rate)
             .order_by(self._model.customer_id, self._model.date)
         )

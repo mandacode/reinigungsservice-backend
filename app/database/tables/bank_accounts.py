@@ -4,7 +4,8 @@ from app.database.tables import metadata
 
 
 bank_accounts = Table(
-    "bank_accounts", metadata,
+    "bank_accounts",
+    metadata,
     Column("id", Integer, primary_key=True),
     Column("iban", String(40), nullable=False),
     Column("bank_name", String(100), nullable=False),

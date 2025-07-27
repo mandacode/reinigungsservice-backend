@@ -25,18 +25,17 @@ MONTH_MAPPER = {
     9: "September",
     10: "Oktober",
     11: "November",
-    12: "Dezember"
+    12: "Dezember",
 }
 
 
 class CustomerInvoiceService:
-
     def __init__(
-            self,
-            drive: GoogleDriveAsyncService,
-            employee_repository: EmployeeRepository,
-            customer_repository: CustomerRepository,
-            work_repository: WorkRepository,
+        self,
+        drive: GoogleDriveAsyncService,
+        employee_repository: EmployeeRepository,
+        customer_repository: CustomerRepository,
+        work_repository: WorkRepository,
     ):
         self._drive = drive
         self._employee_repository = employee_repository
@@ -45,18 +44,17 @@ class CustomerInvoiceService:
 
     @timer
     async def generate_invoices(
-            self,
-            start_date: datetime.date,
-            end_date: datetime.date,
-            last_invoice_number: str = '1'
+        self,
+        start_date: datetime.date,
+        end_date: datetime.date,
+        last_invoice_number: str = "1",
     ):
-        employer = await self._employee_repository.get_by_code(code='MJ')
+        employer = await self._employee_repository.get_by_code(code="MJ")
         customers = await self._customer_repository.get_all_with_addresses()
         customers_by_id = {customer.id: customer for customer in customers}
 
         works = await self._work_repository.get_by_period(
-            start_date=start_date,
-            end_date=end_date
+            start_date=start_date, end_date=end_date
         )
         customer_works = collections.defaultdict(list)
         for work in works:
@@ -70,10 +68,10 @@ class CustomerInvoiceService:
         ]
         folder_id, template = await asyncio.gather(*tasks)
 
-
         to_upload = []
-        for invoice_number, (customer_id, works) in enumerate(customer_works.items(), start=int(last_invoice_number)):
-
+        for invoice_number, (customer_id, works) in enumerate(
+            customer_works.items(), start=int(last_invoice_number)
+        ):
             customer = customers_by_id.get(customer_id)
             total = sum(work.total_price for work in works)
 
@@ -82,38 +80,35 @@ class CustomerInvoiceService:
                 "left_street": customer.address.street_address,
                 "left_code": customer.address.postal_code,
                 "left_city": customer.address.city,
-
                 "right_name": employer.name,
                 "right_company": employer.company_name,
                 "right_street": employer.address.street_address,
                 "right_code": employer.address.postal_code,
                 "right_city": employer.address.city,
-                "right_phone": f'Tel.Pl: {employer.metadata.get("contact", {}).get("phone")}',
-                "right_email": f'Email: {employer.metadata.get("contact", {}).get("email")}',
+                "right_phone": f"Tel.Pl: {employer.metadata.get('contact', {}).get('phone')}",
+                "right_email": f"Email: {employer.metadata.get('contact', {}).get('email')}",
                 "right_bank_name": employer.bank_account.bank_name,
                 "right_iban": employer.bank_account.iban,
                 "right_bic": employer.bank_account.bic,
-                "right_st_nr": f'St.Nr. {employer.metadata.get("st_nr", "")}',
-                "right_ust_id": f'USt-Id.Nr: {employer.metadata.get("vat_id", "")}',
-
+                "right_st_nr": f"St.Nr. {employer.metadata.get('st_nr', '')}",
+                "right_ust_id": f"USt-Id.Nr: {employer.metadata.get('vat_id', '')}",
                 "invoice_number": invoice_number,
-                "date": end_date.strftime('%d.%m.%Y'),
+                "date": end_date.strftime("%d.%m.%Y"),
                 "year": end_date.year,
                 "month": MONTH_MAPPER[end_date.month],
-                "extended": customer.metadata.get('extended_invoice', False),
-
+                "extended": customer.metadata.get("extended_invoice", False),
                 "note": customer.note,
                 "rows": [
                     {
-                        "date": work.date.strftime('%d.%m.%Y'),
+                        "date": work.date.strftime("%d.%m.%Y"),
                         "hours": f"{work.total_hours} Std",
-                        "total": f"{work.total_price:.2f} €"
+                        "total": f"{work.total_price:.2f} €",
                     }
                     for work in customer_works.get(customer.id, [])
                 ],
                 "netto": f"{total:.2f} €",
                 "tax": f"{total * 0.19:.2f} €",
-                "brutto": f"{total * 1.19:.2f} €"
+                "brutto": f"{total * 1.19:.2f} €",
             }
 
             content = self.render_invoice(template=template, data=data)
@@ -122,33 +117,27 @@ class CustomerInvoiceService:
             to_upload.append((content, filename))
 
         await asyncio.gather(
-            *[self.upload_invoice(content, filename, folder_id) for content, filename in to_upload]
+            *[
+                self.upload_invoice(content, filename, folder_id)
+                for content, filename in to_upload
+            ]
         )
 
     async def upload_invoice(self, content: bytes, filename: str, folder_id: str):
         file_id = await self._drive.upload(
-            content=content,
-            filename=filename,
-            parent_folder_id=folder_id
+            content=content, filename=filename, parent_folder_id=folder_id
         )
         print(f"Invoice {filename} uploaded with ID: {file_id}")
 
         await self._drive.convert_docx_to_pdf(
-            file_id=file_id,
-            filename=filename,
-            folder_id=folder_id
+            file_id=file_id, filename=filename, folder_id=folder_id
         )
         print(f"Invoice {filename} converted to PDF and saved.")
 
     @staticmethod
     def _create_filename(name: str) -> str:
-        customer_name = (
-            name
-            .lower()
-            .replace(" ", "_")
-            .replace("-", "_")
-        )
-        return f'{customer_name}.docx'
+        customer_name = name.lower().replace(" ", "_").replace("-", "_")
+        return f"{customer_name}.docx"
 
     @staticmethod
     def render_invoice(template: bytes, data: dict) -> bytes:
@@ -157,6 +146,7 @@ class CustomerInvoiceService:
         output = io.BytesIO()
         doc.save(output)
         return output.getvalue()
+
 
 # TODO 5. Save copy to S3
 # TODO 6. Save invoice to database

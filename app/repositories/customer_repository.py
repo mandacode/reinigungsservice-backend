@@ -9,9 +9,6 @@ class CustomerRepository(BaseRepository):
     _model = Customer
 
     async def get_all_with_addresses(self):
-        stmt = (
-            select(self._model)
-            .options(selectinload(self._model.address))
-        )
+        stmt = select(self._model).options(selectinload(self._model.address))
         result = await self._session.execute(stmt)
         return result.scalars().all()

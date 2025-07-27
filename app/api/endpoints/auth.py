@@ -5,17 +5,13 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError
 
 from app.models.user import User
-from app.dependencies import (
-    get_auth_service,
-    get_current_user,
-    verify_admin_key
-)
+from app.dependencies import get_auth_service, get_current_user, verify_admin_key
 from app.config import settings
 from app.schemas.auth import TokenDTO, UserLoginDTO, UserDTO, UserRegisterDTO
 from app.services.auth_service import (
     TokenIsBlacklistedError,
     AuthService,
-    UserAlreadyExistsError
+    UserAlreadyExistsError,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -23,8 +19,8 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/login", response_model=TokenDTO)
 async def create_access_token_controller(
-        creds: UserLoginDTO,
-        service: AuthService = Depends(get_auth_service),
+    creds: UserLoginDTO,
+    service: AuthService = Depends(get_auth_service),
 ):
     user = await service.authenticate(creds.username, creds.password)
     if not user:
@@ -42,7 +38,7 @@ async def create_access_token_controller(
     return {
         "access_token": access_token,
         "token_type": "Bearer",
-        "username": user.username
+        "username": user.username,
     }
 
 
@@ -50,7 +46,7 @@ async def create_access_token_controller(
 async def logout(
     credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
     service: AuthService = Depends(get_auth_service),
-    _ = Depends(get_current_user)
+    _=Depends(get_current_user),
 ):
     token = credentials.credentials
 
@@ -71,17 +67,15 @@ async def logout(
 
 
 @router.get("/me", response_model=UserDTO)
-async def get_current_user_info_controller(
-    user: User = Depends(get_current_user)
-):
+async def get_current_user_info_controller(user: User = Depends(get_current_user)):
     return user
 
 
 @router.post("/register")
 async def register_admin_user_controller(
-        data: UserRegisterDTO,
-        _ = Depends(verify_admin_key),
-        service: AuthService = Depends(get_auth_service)
+    data: UserRegisterDTO,
+    _=Depends(verify_admin_key),
+    service: AuthService = Depends(get_auth_service),
 ):
     try:
         await service.register_user(username=data.username, password=data.password)

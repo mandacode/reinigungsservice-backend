@@ -25,16 +25,26 @@ def run_mappers():
     mapper_registry.map_imperatively(Address, addresses)
     mapper_registry.map_imperatively(BankAccount, bank_accounts)
 
-    mapper_registry.map_imperatively(Employee, employees, properties={
-        "works": relationship(Work, backref="employee"),
-        "address": relationship(Address, backref="employees", uselist=False),
-        "bank_account": relationship(BankAccount, backref="employees", uselist=False)
-    })
+    mapper_registry.map_imperatively(
+        Employee,
+        employees,
+        properties={
+            "works": relationship(Work, backref="employee"),
+            "address": relationship(Address, backref="employees", uselist=False),
+            "bank_account": relationship(
+                BankAccount, backref="employees", uselist=False
+            ),
+        },
+    )
 
-    mapper_registry.map_imperatively(Customer, customers, properties={
-        "works": relationship("Work", backref="customer"),
-        "address": relationship(Address, backref="customers", uselist=False)
-    })
+    mapper_registry.map_imperatively(
+        Customer,
+        customers,
+        properties={
+            "works": relationship("Work", backref="customer"),
+            "address": relationship(Address, backref="customers", uselist=False),
+        },
+    )
 
     mapper_registry.map_imperatively(Work, works)
 

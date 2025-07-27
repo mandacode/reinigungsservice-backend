@@ -3,7 +3,8 @@ from sqlalchemy import Column, Integer, Table, String, ForeignKey, DateTime, fun
 from app.database.tables import metadata
 
 blacklisted_tokens = Table(
-    "blacklisted_tokens", metadata,
+    "blacklisted_tokens",
+    metadata,
     Column("id", Integer, primary_key=True),
     Column("token", String(500), nullable=False, unique=True),
     Column("expires_at", DateTime, nullable=False),

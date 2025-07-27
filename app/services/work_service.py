@@ -11,12 +11,14 @@ class WorkService:
         works = []
         for work_day in work_days:
             for work in work_day.works:
-                works.append({
-                    'customer_id': work.customer_id,
-                    'employee_id': work_day.employee_id,
-                    'date': date,
-                    'hours': work.hours
-                })
+                works.append(
+                    {
+                        "customer_id": work.customer_id,
+                        "employee_id": work_day.employee_id,
+                        "date": date,
+                        "hours": work.hours,
+                    }
+                )
 
         if works:
             await self._work_repository.add_all(works)

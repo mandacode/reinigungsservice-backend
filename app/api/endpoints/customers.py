@@ -12,7 +12,7 @@ router = APIRouter(prefix="/customers", tags=["customers"])
 
 @router.get("/", response_model=list[CustomerDTO])
 async def get_customers_controller(
-        service: CustomerService = Depends(get_customer_service),
-        _ = Depends(get_current_user)
+    service: CustomerService = Depends(get_customer_service),
+    _=Depends(get_current_user),
 ):
     return await service.get_all_customers()
