@@ -68,7 +68,7 @@ SEED_FILE_ID=your_seed_file_id
 ### 3. Convert Google API credentials JSON to base64
 You can use the following command to convert your Google API credentials JSON file to base64:
 ```bash
-base64 -w 0 path/to/your/google_credentials.json > google_credentials_base64.txt
+make encode-creds FILE=path/to/your/google_credentials.json
 ```
 Then copy the content of `google_credentials_base64.txt` into your `.env` file as `GOOGLE_DRIVE_CREDENTIALS_JSON`.
 

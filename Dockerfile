@@ -23,8 +23,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /opt/src/
 
+RUN chown -R $GROUP_ID:$USER_ID /opt/src/
+
+
 COPY . .
 
 EXPOSE 8000
 
 USER user
+COPY --chown=$GROUP_ID:$USER_ID . .

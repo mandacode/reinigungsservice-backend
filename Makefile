@@ -7,10 +7,10 @@ up:
 	docker compose up --build
 
 lint:
-	docker compose exec $(SERVICE) ruff check .
+	docker compose exec $(SERVICE) ruff check app
 
 format:
-	docker compose exec $(SERVICE) ruff format .
+	docker compose exec $(SERVICE) ruff format app
 
 test:
 	docker compose exec $(SERVICE) pytest
@@ -27,7 +27,6 @@ logs:
 bash:
 	docker compose exec $(SERVICE) bash
 
-## make encode-creds FILE=path/to/your/google_credentials.json
 encode-googleapi-creds:
 	@if [ -z "$(FILE)" ]; then \
 		echo "Error: FILE variable is not set. Usage: make encode-creds FILE=path/to/file.json"; \
