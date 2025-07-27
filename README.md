@@ -84,8 +84,8 @@ docker-compose exec fastapi alembic upgrade head
 ## 📬 API Documentation
 Once running, access interactive docs:
 
-Swagger UI: http://localhost:8000/docs
-ReDoc: http://localhost:8000/redoc
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
 ## 🧪 Running Tests
 To run tests, use the following command:
