@@ -11,3 +11,4 @@ docxtpl==0.20.1
 passlib==1.7.4
 bcrypt==3.2.2
 python-jose==3.5.0
+ruff==0.12.5

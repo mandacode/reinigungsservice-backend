@@ -2,10 +2,9 @@ import asyncio
 
 from fastapi import APIRouter, Depends
 
-from app.dependencies import get_invoice_service, get_current_user, \
+from app.dependencies import get_current_user, \
     create_invoice_task
 from app.schemas.invoices import InvoicesCreateDTO
-from app.services.invoices_service import CustomerInvoiceService
 
 
 router = APIRouter(prefix='/invoices', tags=["invoices"])
