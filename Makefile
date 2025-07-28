@@ -15,6 +15,9 @@ format:
 test:
 	docker compose exec $(SERVICE) pytest
 
+revision:
+	docker compose exec $(SERVICE) alembic revision --autogenerate
+
 migrate:
 	docker compose exec $(SERVICE) alembic upgrade head
 

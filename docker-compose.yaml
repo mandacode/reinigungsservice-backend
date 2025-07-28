@@ -13,6 +13,7 @@ services:
     volumes:
         - ./app:/opt/src/app
         - ./tests:/opt/src/tests
+        - ./alembic:/opt/src/alembic
     networks:
       - reinigungsservice_network
     ports:

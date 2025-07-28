@@ -17,7 +17,7 @@ employees = Table(
     metadata,
     Column("id", Integer, primary_key=True),
     Column("name", String(100), nullable=False, index=True),
-    Column("code", String(2), nullable=False, index=True),
+    Column("code", String(3), nullable=False, index=True),
     Column("hourly_rate", DECIMAL(4, 2), nullable=False, default=12.00),
     Column("company_name", String(100), nullable=True),
     Column("metadata", JSON, default=dict),

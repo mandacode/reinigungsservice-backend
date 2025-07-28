@@ -18,8 +18,10 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from app.db.tables import metadata
+from app.database.tables.bank_accounts import metadata
 target_metadata = metadata
+print("Target metadata set for migrations:", target_metadata)
+print("Tables in target_metadata:", target_metadata.tables.keys())
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
