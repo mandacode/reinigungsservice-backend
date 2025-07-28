@@ -11,7 +11,7 @@ class BankAccountCreateDTO(BaseModel):
 
 class EmployeeCreateDTO(BaseModel):
     name: str
-    code: str = Field(..., max_length=2)
+    code: str = Field(..., max_length=3)
     hourly_rate: float = Field(..., ge=0.0)
     company_name: str
     metadata: dict = {}
@@ -22,4 +22,4 @@ class EmployeeCreateDTO(BaseModel):
 class EmployeeDTO(BaseModel):
     id: int
     name: str
-    code: str = Field(..., max_length=2)
+    code: str = Field(..., max_length=3)
