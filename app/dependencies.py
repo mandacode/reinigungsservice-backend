@@ -22,60 +22,30 @@ from app.models.user import User
 from app.config import settings
 
 
-# Repositories
-async def get_address_repository(
-    session: AsyncSession = Depends(get_session),
-) -> AddressRepository:
-    return AddressRepository(session)
-
-
-async def get_bank_account_repository(
-    session: AsyncSession = Depends(get_session),
-) -> BankAccountRepository:
-    return BankAccountRepository(session)
-
-
-def get_employee_repository(
-    session: AsyncSession = Depends(get_session),
-) -> EmployeeRepository:
-    return EmployeeRepository(session)
-
-
-def get_customer_repository(
-    session: AsyncSession = Depends(get_session),
-) -> CustomerRepository:
-    return CustomerRepository(session)
-
-
-def get_work_repository(session: AsyncSession = Depends(get_session)) -> WorkRepository:
-    return WorkRepository(session)
-
-
-def get_user_repository(session: AsyncSession = Depends(get_session)):
-    return UserRepository(session)
-
-
-def get_blacklisted_tokens_repository(session: AsyncSession = Depends(get_session)):
-    return BlacklistedTokenRepository(session)
-
-
 # Services
 def get_employee_service(
-    employee_repository: EmployeeRepository = Depends(get_employee_repository),
+    session: AsyncSession = Depends(get_session),
 ) -> EmployeeService:
-    return EmployeeService(employee_repository=employee_repository)
+    return EmployeeService(
+        employee_repository=EmployeeRepository(session),
+        address_repository=AddressRepository(session),
+        bank_account_repository=BankAccountRepository(session),
+    )
 
 
 def get_customer_service(
-    customer_repository: CustomerRepository = Depends(get_customer_repository),
+    session: AsyncSession = Depends(get_session),
 ) -> CustomerService:
-    return CustomerService(customer_repository=customer_repository)
+    return CustomerService(
+        customer_repository=CustomerRepository(session),
+        address_repository=AddressRepository(session),
+    )
 
 
 def get_work_service(
-    work_repository: WorkRepository = Depends(get_work_repository),
+    session: AsyncSession = Depends(get_session),
 ) -> WorkService:
-    return WorkService(work_repository=work_repository)
+    return WorkService(work_repository=WorkRepository(session))
 
 
 def get_google_drive_service() -> GoogleDriveAsyncService:
@@ -97,14 +67,11 @@ def get_invoice_service(
 
 
 def get_auth_service(
-    user_repository: UserRepository = Depends(get_user_repository),
-    blacklisted_token_repository: BlacklistedTokenRepository = Depends(
-        get_blacklisted_tokens_repository
-    ),
+    session: AsyncSession = Depends(get_session),
 ) -> AuthService:
     return AuthService(
-        user_repository=user_repository,
-        blacklisted_token_repository=blacklisted_token_repository,
+        user_repository=UserRepository(session),
+        blacklisted_token_repository=BlacklistedTokenRepository(session),
     )
 
 

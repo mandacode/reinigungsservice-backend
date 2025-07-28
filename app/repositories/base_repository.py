@@ -30,6 +30,7 @@ class BaseRepository(Generic[Model]):
     async def add(self, entity: Model) -> Model:
         self._session.add(entity)
         await self._session.commit()
+        await self._session.refresh(entity)
         return entity
 
     async def delete(self, entity: Model) -> None:

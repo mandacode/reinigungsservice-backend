@@ -11,7 +11,7 @@ class Customer(BaseModel):
     invoice_name: str
     hourly_rate: float
     note: str
-    address_id: int
+    address_id: int = None
 
     works: list = field(default_factory=list, repr=False)
     address: Address = field(default=None, repr=False)

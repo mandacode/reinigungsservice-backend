@@ -12,8 +12,8 @@ class Employee(BaseModel):
     hourly_rate: float
     company_name: str
     metadata: dict
-    address_id: int
-    bank_account_id: int
+    address_id: int = None
+    bank_account_id: int = None
 
     works: list = field(default_factory=list, repr=False)
     address: Address = field(default=None, repr=False)
