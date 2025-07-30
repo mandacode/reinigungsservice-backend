@@ -7,16 +7,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.config import get_session, async_session
 from app.repositories.employee_repository import EmployeeRepository
 from app.repositories.customer_repository import CustomerRepository
+from app.repositories.refresh_token_repository import RefreshTokenRepository
 from app.repositories.work_repository import WorkRepository
 from app.repositories import AddressRepository, BankAccountRepository
 from app.repositories.user_repository import UserRepository
-from app.repositories.blacklisted_token_repository import BlacklistedTokenRepository
 from app.services.employee_service import EmployeeService
 from app.services.customer_service import CustomerService
 from app.services.work_service import WorkService
 from app.services.invoices_service import CustomerInvoiceService
 from app.services.google_drive_service import GoogleDriveAsyncService
-from app.services.auth_service import AuthService, TokenIsBlacklistedError
+from app.services.auth_service import AuthService
 from app.services.seed_db_service import SeedDbService
 from app.models.user import User
 from app.config import settings
@@ -71,7 +71,7 @@ def get_auth_service(
 ) -> AuthService:
     return AuthService(
         user_repository=UserRepository(session),
-        blacklisted_token_repository=BlacklistedTokenRepository(session),
+        refresh_token_repository=RefreshTokenRepository(session),
     )
 
 
@@ -97,16 +97,11 @@ async def get_current_user(
     try:
         current_user = await service.get_current_user(credentials.credentials)
         return current_user
-    except TokenIsBlacklistedError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token is blacklisted",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            detail={"error": "Invalid authentication credentials"},
             headers={"WWW-Authenticate": "Bearer"},
         )
 

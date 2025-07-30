@@ -14,7 +14,8 @@ class Settings(BaseModel):
     admin_key: str = os.getenv("ADMIN_KEY")
     frontend_domain: str = os.getenv("FRONTEND_DOMAIN")
     algorithm: str = "HS256"
-    access_token_lifespan: int = 30
+    access_token_lifespan: int = 15 * 60  # 15 minutes
+    refresh_token_lifespan: int = 1 * 60 * 24  # 1 day
     google_drive_scopes: list[str] = [
         "https://www.googleapis.com/auth/drive",
         "https://www.googleapis.com/auth/drive.file",

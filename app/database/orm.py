@@ -5,18 +5,18 @@ from sqlalchemy.orm import registry, relationship
 from app.database.tables import metadata
 from app.database.tables.addresses import addresses
 from app.database.tables.bank_accounts import bank_accounts
-from app.database.tables.blacklisted_tokens import blacklisted_tokens
 from app.database.tables.customers import customers
 from app.database.tables.employees import employees
 from app.database.tables.users import users
 from app.database.tables.works import works
+from app.database.tables.refresh_tokens import refresh_tokens
 from app.models.address import Address
 from app.models.bank_account import BankAccount
-from app.models.blacklisted_token import BlacklistedToken
 from app.models.employee import Employee
 from app.models.customer import Customer
 from app.models.work import Work
 from app.models.user import User
+from app.models.refresh_token import RefreshToken
 
 mapper_registry = registry()
 
@@ -49,7 +49,7 @@ def run_mappers():
     mapper_registry.map_imperatively(Work, works)
 
     mapper_registry.map_imperatively(User, users)
-    mapper_registry.map_imperatively(BlacklistedToken, blacklisted_tokens)
+    mapper_registry.map_imperatively(RefreshToken, refresh_tokens)
 
 
 async def create_tables(engine: AsyncEngine):

@@ -11,10 +11,9 @@ class UserDTO(BaseModel):
     password: str
 
 
-class TokenDTO(BaseModel):
+class AccessTokenDTO(BaseModel):
     access_token: str
     token_type: str
-    username: str
 
 
 class UserRegisterDTO(BaseModel):

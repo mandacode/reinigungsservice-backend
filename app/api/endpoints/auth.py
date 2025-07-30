@@ -1,12 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import JWTError
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 
+from app.config import settings
 from app.models.user import User
 from app.dependencies import get_auth_service, get_current_user, verify_admin_key
-from app.schemas.auth import TokenDTO, UserLoginDTO, UserDTO, UserRegisterDTO
+from app.schemas.auth import AccessTokenDTO, UserLoginDTO, UserDTO, UserRegisterDTO
 from app.services.auth_service import (
-    TokenIsBlacklistedError,
     AuthService,
     UserAlreadyExistsError,
 )
@@ -14,8 +12,9 @@ from app.services.auth_service import (
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login", response_model=TokenDTO)
-async def create_access_token_controller(
+@router.post("/login", response_model=AccessTokenDTO)
+async def login_controller(
+    response: Response,
     creds: UserLoginDTO,
     service: AuthService = Depends(get_auth_service),
 ):
@@ -27,37 +26,35 @@ async def create_access_token_controller(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token = service.create_access_token(data={"sub": user.username})
+    data = {"sub": str(user.id)}
+    access_token = service.create_access_token(data)
+    refresh_token = await service.create_refresh_token(data)
+
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        max_age=settings.refresh_token_lifespan * 60,
+        samesite="lax",
+        secure=False
+    )
 
     return {
         "access_token": access_token,
         "token_type": "Bearer",
-        "username": user.username,
     }
 
 
 @router.post("/logout")
 async def logout(
-    credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+    request: Request,
+    response: Response,
     service: AuthService = Depends(get_auth_service),
-    _=Depends(get_current_user),
 ):
-    token = credentials.credentials
+    refresh_token = request.cookies.get("refresh_token")
+    response.delete_cookie("refresh_token")
 
-    try:
-        user = await service.get_current_user(token=token)
-    except TokenIsBlacklistedError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token is blacklisted",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    try:
-        await service.blacklist_token(token=token, user_id=user.id)
-        return {"message": "Successfully logged out"}
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+    await service.delete_refresh_token(refresh_token)
 
 
 @router.get("/me", response_model=UserDTO)
@@ -80,3 +77,34 @@ async def register_admin_user_controller(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return {"status": "ok", "message": "User created"}
+
+
+@router.post("/refresh", response_model=AccessTokenDTO)
+async def refresh_access_token_controller(
+    request: Request,
+    response: Response,
+    service: AuthService = Depends(get_auth_service),
+):
+    refresh_token = request.cookies.get("refresh_token")
+    if not refresh_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token is missing",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    validated = await service.verify_refresh_token(token=refresh_token)
+    if not validated:
+        await service.delete_refresh_token(refresh_token)
+        response.delete_cookie("refresh_token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    user = await service.get_current_user(refresh_token)
+
+    access_token = service.create_access_token(
+        data={"sub": str(user.id)}
+    )
+    return {"access_token": access_token, "token_type": "Bearer"}

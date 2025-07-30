@@ -33,4 +33,5 @@ line-length = 88
 exclude = ["versions", "__pycache__", '.venv']
 lint.ignore = [
     "T20",  # print statement
+    "E402", # module level import not at top of file
 ]
