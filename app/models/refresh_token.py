@@ -5,7 +5,7 @@ from app.models.base_model import BaseModel
 
 
 @dataclass
-class BlacklistedToken(BaseModel):
+class RefreshToken(BaseModel):
     token: str
     expires_at: datetime.datetime
     user_id: int

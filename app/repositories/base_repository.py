@@ -37,5 +37,10 @@ class BaseRepository(Generic[Model]):
         await self._session.delete(entity)
         await self._session.commit()
 
+    async def get(self, entity_id: int) -> Model | None:
+        stmt = select(self._model).where(self._model.id == entity_id)
+        result = await self._session.execute(stmt)
+        return result.scalars().first()
+
     def get_session(self) -> AsyncSession:
         return self._session
