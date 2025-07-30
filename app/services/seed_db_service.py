@@ -36,10 +36,10 @@ class SeedDbService:
         data = await self._drive.download(settings.seed_file_id)
 
         entities = {
-            "employees": [],
-            "customers": [],
             "addresses": [],
             "bank_accounts": [],
+            "employees": [],
+            "customers": [],
         }
 
         for item in data:

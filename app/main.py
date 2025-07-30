@@ -4,15 +4,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import router
-from app.database.orm import create_tables, run_mappers
-from app.database.config import engine
+from app.database.orm import run_mappers
 from app.config import settings
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Starting up the application...")
-    await create_tables(engine=engine)
     run_mappers()
     yield
     print("Shutting down the application...")
